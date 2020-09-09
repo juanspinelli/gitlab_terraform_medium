@@ -1,0 +1,47 @@
+stages:
+    - Pull
+    - Iniciar_Terraform
+    - Validar_Terraform
+    - Plan_Terraform
+    - Apply_Aws
+    - Destroy
+
+git_pull:
+    stage: Pull
+    script:
+        - cd $WORKING_DIRECTORY
+        - git pull http://$USER:$PASS@81e14fbd6a2a/root/pipelines_terraform.git
+
+tf_init:
+    stage: Iniciar_Terraform
+    script:
+        - cd $WORKING_DIRECTORY
+        - rm -rf .terraform
+        - rm -rf planfile
+        - rm -rf terraform.tfstate
+        - terraform init
+      
+tf_validate:
+    stage: Validar_Terraform
+    script:
+        - cd $WORKING_DIRECTORY
+        - terraform validate
+      
+tf_plan:
+    stage: Plan_Terraform
+    script:
+        - cd $WORKING_DIRECTORY
+        - terraform plan -out="planfile"
+  
+tf_apply_aws:
+    stage: Apply_Aws
+    script:
+        - cd $WORKING_DIRECTORY
+        - terraform apply -input=false "planfile"
+    
+tf_destroy_aws:
+    stage: Destroy
+    script:
+        - cd $WORKING_DIRECTORY
+        - terraform destroy -auto-approve
+  
